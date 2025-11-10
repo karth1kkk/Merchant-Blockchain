@@ -67,6 +67,19 @@ function App() {
     [encodedUri, qrDataUrl]
   );
 
+  const uriLines = useMemo(() => {
+    if (!encodedUri) return [];
+
+    const [prefix, query = ""] = encodedUri.split("?");
+    const params = query ? query.split("&") : [];
+
+    const firstLine = prefix.slice(0, 26);
+    const secondLine = `${prefix.slice(26)}${params[0] ? `\n${params[0]}` : ""}`;
+    const thirdLine = params[1] ?? "";
+
+    return [firstLine, secondLine, thirdLine];
+  }, [encodedUri]);
+
   const handleGenerate = async (event) => {
     event.preventDefault();
 
@@ -229,39 +242,44 @@ function App() {
               </div>
             </form>
 
-            <aside className="space-y-6 rounded-3xl border border-white/10 bg-slate-950/50 p-6 text-center shadow-inner transition dark:border-slate-800 dark:bg-slate-950/70 lg:col-span-3 lg:p-8">
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold text-white">
+            <aside className="space-y-5 rounded-3xl border border-white/10 bg-slate-950/50 p-4 text-center shadow-inner transition dark:border-slate-800 dark:bg-slate-950/70 xs:space-y-6 xs:p-6 sm:p-8 lg:col-span-3">
+              <div className="space-y-3 xs:space-y-4">
+                <h2 className="text-2xl font-semibold text-white xs:text-[28px] sm:text-3xl">
                   Preview
                 </h2>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-slate-300 xs:text-[15px] sm:text-base">
                   Your QR code and EIP-681 URI will appear here once generated.
                 </p>
               </div>
 
               {hasResult ? (
-                <div className="space-y-6">
-                  <div className="mx-auto flex max-w-xs flex-col items-center gap-4 rounded-3xl bg-white p-4 shadow-lg transition-all animate-fadeIn">
+                <div className="space-y-5 xs:space-y-6">
+                  <div className="mx-auto flex w-1/2 max-w-[14rem] flex-col items-center gap-4 rounded-3xl bg-white p-4 shadow-lg transition-all animate-fadeIn xs:max-w-[17rem] xs:p-5 sm:max-w-[19rem] md:max-w-[24rem] lg:max-w-[26rem] xl:max-w-[28rem] 2xl:max-w-[30rem]">
                     <img
                       src={qrDataUrl}
                       alt="Ethereum payment QR code"
-                      className="w-full max-w-[240px]"
+                      className="h-auto w-full max-w-[14rem] xs:max-w-[17rem] sm:max-w-[19rem] md:max-w-[24rem] lg:max-w-[26rem] xl:max-w-[28rem] 2xl:max-w-[30rem]"
                     />
                     <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
                       Scan to pay
                     </p>
                   </div>
-                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80 p-4 text-left text-slate-200">
-                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/80">
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80 p-4 text-left text-slate-200 xs:p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/80 xs:text-sm sm:text-base">
                       Encoded URI
                     </p>
-                    <pre className="mt-2 overflow-x-auto text-sm text-emerald-200">
-                      {encodedUri}
+                    <pre className="mt-2 max-h-48 overflow-x-auto break-words whitespace-pre-wrap text-xs lg:text-xl text-emerald-200 xs:text-sm sm:text-base">
+                      {uriLines.map((line, index) => (
+                        <span key={`${line}-${index}`}>
+                          {line}
+                          {index < uriLines.length - 1 ? "\n" : ""}
+                        </span>
+                      ))}
                     </pre>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-3xl border border-dashed border-white/10 bg-slate-900/60 p-10 text-sm text-slate-400">
+                <div className="rounded-3xl border border-dashed border-white/10 bg-slate-900/60 p-5 text-sm text-slate-400 xs:p-8 xs:text-[15px] sm:p-10 sm:text-base">
                   Provide details and tap “Generate QR Code” to preview and
                   download your payment request.
                 </div>
